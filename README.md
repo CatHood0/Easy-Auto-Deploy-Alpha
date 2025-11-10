@@ -7,6 +7,16 @@ Esta herramienta democratiza el depliegue de aplicaciones, transformando proceso
 > [!IMPORTANT]
 > Esta herramienta no trata de ser un reemplazo ni de desarrolladores, ni muchos menos Docker (lo contrario, existe gracias a Docker). En caso de preferirlo, siempre es recomendable usar la herramienta nativa en caso de no confíar en otras soluciones. Al final del días, este proyecto existe simplemente para facilitar el desarrollo.
 
+# FUNCIONALIDADES PRINCIPALES EN LA QUE ESTOY CENTRADO)
+
+- MVP Funcional: CLI básica funcionando
+- Pipeline Completo: Deployment end-to-end robusto
+- GUI Operacional: Interfaz gráfica completa
+- Sistema Extensible: Plugins e integraciones
+- Production Ready: Testing completo y empaquetado
+
+## ROADMAP
+
 FASE 1: LO MÁS BASICO DEL SISTEMA
 
 1.1. SISTEMA DE EVENTOS Y PIPELINE
@@ -120,7 +130,7 @@ FASE 3: INTERFAZ GRÁFICA
   - Validación en tiempo real
   - Quick-fixes automáticos
 
-🧪 FASE 5: TESTING Y CALIDAD
+FASE 5: TESTING Y CALIDAD
 
 5.1. TESTING COMPREHENSIVO
 
@@ -151,9 +161,9 @@ FASE 3: INTERFAZ GRÁFICA
   - Documentación técnica (architectura)
   - Documentación de usuario (guides)
   - Documentación de API (plugins)
-  - Ejemplos y tutorials
+  - Ejemplos y tutoriales
 
-🚀 FASE 6: PREPARACIÓN PARA PRODUCCIÓN
+FASE 6: PREPARACIÓN PARA PRODUCCIÓN
 
 6.1. EMPAQUETADO Y DISTRIBUCIÓN
 
@@ -168,14 +178,4 @@ FASE 3: INTERFAZ GRÁFICA
 - Observabilidad
   - Logging estructurado (JSON)
   - Health checks del sistema
-
-MÉTRICAS DE PROGRESO
-
-FUNCIONALIDADES PRINCIPALES
-
-- MVP Funcional: CLI básica funcionando
-- Pipeline Completo: Deployment end-to-end robusto
-- GUI Operacional: Interfaz gráfica completa
-- Sistema Extensible: Plugins e integraciones
-- Production Ready: Testing completo y empaquetado
 
