@@ -1,6 +1,5 @@
+import 'package:eadeploy_cli/src/core/entities/project/repository_arguments.dart';
 import 'package:flutter/foundation.dart';
-
-import 'package:auto_deployment/src/domain/entities/repository_arguments.dart';
 
 class Repository {
   final int id;

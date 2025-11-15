@@ -1,8 +1,6 @@
 import 'dart:convert';
-
 import 'package:collection/collection.dart';
-
-import 'command/command_base.dart';
+import '../../commands/command_base.dart';
 
 class RepositoryArguments {
   final int id;
@@ -77,26 +75,25 @@ class RepositoryArguments {
       RepositoryArguments.fromMap(json.decode(source));
   @override
   String toString() {
-      return 'Arguments('
-          'id: $id, '
-          'repoId: $repoId, '
-          'environmentVars: $environmentVars, '
-          'commands: $steps, '
-          'request_sudo: request_sudo, '
-          ')';
+    return 'Arguments('
+        'id: $id, '
+        'repoId: $repoId, '
+        'environmentVars: $environmentVars, '
+        'commands: $steps, '
+        'request_sudo: request_sudo, '
+        ')';
   }
 
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    const DeepCollectionEquality deepCollectionEquality =
-        DeepCollectionEquality();
     return other is RepositoryArguments &&
         other.id == id &&
         other.repoId == repoId &&
         other.identifier == identifier &&
-        deepCollectionEquality.equals(other.steps, steps) &&
-        deepCollectionEquality.equals(other.environmentVars, environmentVars) &&
+        _deepCollectionEquality.equals(other.steps, steps) &&
+        _deepCollectionEquality.equals(
+            other.environmentVars, environmentVars) &&
         other.requestForSudo == requestForSudo;
   }
 
@@ -184,3 +181,5 @@ class EnvironmentVar {
   int get hashCode =>
       key.hashCode ^ value.hashCode ^ id.hashCode ^ repoId.hashCode;
 }
+
+const DeepCollectionEquality _deepCollectionEquality = DeepCollectionEquality();

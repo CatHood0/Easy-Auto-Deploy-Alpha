@@ -6,8 +6,8 @@ class CommandExecuter {
   /// Returns a map of commands that we're not executed as expected 
   /// with the error message
   Map<int, Map<CommandBase, String?>> execute(
-    Pipeline owner,
-    PipelineEvent event,
+    PipelineStagesRunner owner,
+    PipelineEvent event
   ) {
     return <int, Map<CommandBase, String?>>{};
   }

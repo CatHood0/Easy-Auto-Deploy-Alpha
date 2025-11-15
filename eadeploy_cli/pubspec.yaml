@@ -16,6 +16,8 @@ dependencies:
   shared_preferences: ^2.5.3
   system_resources: ^1.6.0
   uuid: ^4.5.2
+  async: ^2.13.0
+  collection: ^1.19.1
 
   # since docker2 had meta pinned to 1.17
   # and path_provider had meta pinned to 1.16

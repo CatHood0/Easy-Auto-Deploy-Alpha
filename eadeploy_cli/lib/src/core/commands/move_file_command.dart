@@ -11,7 +11,7 @@ class MoveFileCommand extends CommandBase {
 
   @override
   Map<String, dynamic> toJson() {
-    return {
+    return <String, dynamic>{
       'type': 'move_file',
       'from': from,
       'to': to,

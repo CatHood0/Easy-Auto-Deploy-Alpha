@@ -1,55 +1,62 @@
-import 'dart:async';
-
 import 'package:eadeploy_cli/src/core/pipelines/pipeline_runner.dart';
 import '../commands/runner/command_runner.dart';
 
-class Pipeline extends PipelineRunner<void, Map<String, dynamic>> {
-  final List<PipelineRunner<void, dynamic>> _runners =
-      <PipelineRunner<void, dynamic>>[];
+// make this more readable
+typedef PipelineJson
+    = PipelineRunner<Map<String, dynamic>, Map<String, dynamic>>;
 
-  final CommandExecuter runner = CommandExecuter();
-  int _currentRunner = -1;
+class PipelineStagesRunner {
+  final List<PipelineJson> stages = <PipelineJson>[];
 
-  @override
-  String get identifier => 'Pipeline-Root-Executer';
+  final CommandExecuter executer = CommandExecuter();
 
   /// Adds new runner at the end of the pipeline
-  void register(PipelineRunner operation) {
-    _runners.add(operation..parent = this);
+  void register(PipelineJson stage) {
+    stages.add(
+      stage
+        ..parent = this
+        ..index = stages.length,
+    );
   }
 
-  @override
-  void run(Map<String, dynamic> param) async {
-    // help us to allow stopping processes at any point
-    final Completer<void> complete = Completer<void>();
-
-    void endRunning(bool forced) {
-      complete.complete();
-      //NOTE: add the rest of the revert at this point
+  Future<Map<String, dynamic>> run(
+    Map<String, dynamic> param, {
+    void Function([String])? onTryLog,
+  }) async {
+    if (stages.isEmpty) {
+      return <String, dynamic>{
+        'error': 'There\'s no stages to execute',
+      };
+    }
+    //TODO: we need to listen for interruptions during execution
+    // to revert changes directly
+    PipelineJson? stage = stages.firstOrNull;
+    Map<String, dynamic> data = param;
+    while (stage != null) {
+      // use the last info, and transform it to the required info for the next one
+      final PipelineResponse<Map<String, dynamic>> response = await stage.run(
+        <String, dynamic>{
+          ...data,
+          'command_runner': executer,
+        },
+        onTryLog: onTryLog,
+      );
+      if (response.hasError) {
+        return <String, dynamic>{
+          'error': response.error,
+          // used normally to pass to the revert operations
+          // to know what was used to make the change at first
+          // place
+          'data': data,
+          'stages': <String, Object>{
+            'require_revert': true,
+            'list': stages.take(stage.index),
+          },
+        };
+      }
+      stage = stage.next;
     }
 
-    _currentRunner++;
-    for (PipelineRunner<void, dynamic> s in _runners) {
-      s
-        ..registerListener(endRunning)
-        ..run(param);
-      _currentRunner++;
-    }
-
-    await complete.future;
-  }
-
-  @override
-  int get phase => -1;
-
-  @override
-  bool revert(Map<String, dynamic> param) {
-    //TODO: probably we will prefer just ignoring
-    // non reverted changes
-    for (var s in _runners) {
-      final bool reverted = s.revert(param);
-      return reverted;
-    }
-    return true;
+    return <String, dynamic>{};
   }
 }
