@@ -1,4 +1,8 @@
+import 'dart:ui';
+import '../logger/logger_details.dart';
 import 'pipeline.dart';
+
+typedef LogCallbackWithDetails = void Function(LogMessageDetail);
 
 abstract class PipelineRunner<T, R extends Object?> {
   PipelineStagesRunner? parent;
@@ -12,33 +16,47 @@ abstract class PipelineRunner<T, R extends Object?> {
       ? parent?.stages.elementAtOrNull(index + 1)
       : null;
 
+  /// Register the a simple
+  void subscribe(LogCallbackWithDetails callback);
+
+  void unSubscribe(LogCallbackWithDetails callback);
+
+  /// Tipically called when the stage ends and does not
+  /// require more listeners
+  void unSubscribeAll();
+
   String get identifier;
 
   /// Revert all the changes as possible
-  bool revert(R param);
+  Future<bool> revert(R param);
 
   /// Runs the runner
   Future<PipelineResponse<T>> run(
     R param, {
-    void Function([String])? onTryLog,
-    Future<void> Function()? onCancel,
+    VoidCallback? preRun,
   });
 }
 
 class PipelineResponse<T> {
   final T? data;
   final Object? error;
+  final bool requireRevert;
+  final bool stopRunning;
 
   PipelineResponse({
     required this.data,
     required this.error,
+    required this.stopRunning,
+    this.requireRevert = false,
   });
 
   PipelineResponse.error({
     required this.error,
+    required this.requireRevert,
+    required this.stopRunning,
   }) : data = null;
 
-  PipelineResponse.sucess({
+  PipelineResponse.success({
     required this.data,
   })  : assert(
           data != null,
@@ -47,6 +65,8 @@ class PipelineResponse<T> {
           'pipeline was '
           'executed sucessfully',
         ),
+        requireRevert = false,
+        stopRunning = false,
         error = null;
 
   bool get hasError => error != null;

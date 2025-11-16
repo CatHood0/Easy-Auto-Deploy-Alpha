@@ -4,11 +4,31 @@ import '../commands/runner/command_runner.dart';
 // make this more readable
 typedef PipelineJson
     = PipelineRunner<Map<String, dynamic>, Map<String, dynamic>>;
+typedef PipelineEventEmitCallback = void Function(PipelineJson event);
 
 class PipelineStagesRunner {
-  final List<PipelineJson> stages = <PipelineJson>[];
+  PipelineStagesRunner({
+    List<PipelineJson>? stages,
+  }) : stages = stages ?? <PipelineJson>[];
 
+  final List<PipelineJson> stages;
+  final List<PipelineEventEmitCallback> _listeners =
+      <PipelineEventEmitCallback>[];
   final CommandExecuter executer = CommandExecuter();
+
+  bool get hasListeners => _listeners.isNotEmpty;
+
+  void registerEventListener(PipelineEventEmitCallback callback) {
+    _listeners.add(callback);
+  }
+
+  void removeListener(PipelineEventEmitCallback callback) {
+    _listeners.remove(callback);
+  }
+
+  void removeAllListeners() {
+    _listeners.clear();
+  }
 
   /// Adds new runner at the end of the pipeline
   void register(PipelineJson stage) {
@@ -19,14 +39,23 @@ class PipelineStagesRunner {
     );
   }
 
-  Future<Map<String, dynamic>> run(
-    Map<String, dynamic> param, {
-    void Function([String])? onTryLog,
-  }) async {
+  void registerAll(List<PipelineJson> events) {
+    for (final PipelineJson event in events) {
+      register(event);
+    }
+  }
+
+  void reload() {
+    stages.clear();
+    removeAllListeners();
+  }
+
+  Stream<Map<String, dynamic>> run(Map<String, dynamic> param) async* {
     if (stages.isEmpty) {
-      return <String, dynamic>{
+      yield <String, dynamic>{
         'error': 'There\'s no stages to execute',
       };
+      return;
     }
     //TODO: we need to listen for interruptions during execution
     // to revert changes directly
@@ -39,10 +68,20 @@ class PipelineStagesRunner {
           ...data,
           'command_runner': executer,
         },
-        onTryLog: onTryLog,
+        preRun: () {
+          for (PipelineEventEmitCallback v in _listeners) {
+            v(stage!);
+          }
+        },
       );
-      if (response.hasError) {
-        return <String, dynamic>{
+
+      stage.unSubscribeAll();
+
+      if (response.hasError && response.stopRunning) {
+        if (response.requireRevert) {
+          await stage.revert(param);
+        }
+        yield <String, dynamic>{
           'error': response.error,
           // used normally to pass to the revert operations
           // to know what was used to make the change at first
@@ -53,10 +92,11 @@ class PipelineStagesRunner {
             'list': stages.take(stage.index),
           },
         };
+        return;
       }
       stage = stage.next;
     }
 
-    return <String, dynamic>{};
+    yield <String, dynamic>{};
   }
 }

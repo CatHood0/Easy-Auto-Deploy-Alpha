@@ -7,14 +7,20 @@ class RenameFileCommand extends CommandBase {
   RenameFileCommand({
     required this.oldPath,
     required this.newPath,
+    required super.assignedToPipeline,
+    super.criticalCommand,
+    super.pre,
   });
 
   @override
   Map<String, dynamic> toJson() {
-    return {
+    return <String, dynamic>{
       'type': 'rename_file',
       'oldPath': oldPath,
       'newPath': newPath,
+      'assignedToPipeline': assignedToPipeline,
+      'criticalCommand': criticalCommand,
+      'pre': pre,
     };
   }
 
@@ -22,16 +28,25 @@ class RenameFileCommand extends CommandBase {
     return RenameFileCommand(
       oldPath: map['oldPath'] as String,
       newPath: map['newPath'] as String,
+      assignedToPipeline: map['assignedToPipeline'] as String,
+      criticalCommand: map['criticalCommand'] as bool? ?? false,
+      pre: map['pre'] as bool? ?? false,
     );
   }
 
   RenameFileCommand copyWith({
     String? oldPath,
     String? newPath,
+    String? assignedToPipeline,
+    bool? criticalCommand,
+    bool? pre,
   }) {
     return RenameFileCommand(
       oldPath: oldPath ?? this.oldPath,
       newPath: newPath ?? this.newPath,
+      assignedToPipeline: assignedToPipeline ?? this.assignedToPipeline,
+      criticalCommand: criticalCommand ?? this.criticalCommand,
+      pre: pre ?? this.pre,
     );
   }
 
@@ -41,8 +56,16 @@ class RenameFileCommand extends CommandBase {
       other is RenameFileCommand &&
           runtimeType == other.runtimeType &&
           oldPath == other.oldPath &&
+          assignedToPipeline == other.assignedToPipeline &&
+          criticalCommand == other.criticalCommand &&
+          pre == other.pre &&
           newPath == other.newPath;
 
   @override
-  int get hashCode => oldPath.hashCode ^ newPath.hashCode;
+  int get hashCode =>
+      oldPath.hashCode ^
+      newPath.hashCode ^
+      pre.hashCode ^
+      assignedToPipeline.hashCode ^
+      criticalCommand.hashCode;
 }

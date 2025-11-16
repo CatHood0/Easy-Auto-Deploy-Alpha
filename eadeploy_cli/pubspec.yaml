@@ -2,6 +2,7 @@ name: eadeploy_cli
 description: A CLI-tool version of Easy-Auto-Deploy for manage easily containers
 version: 1.0.0-dev
 repository: https://github.com/CatHood0/Easy-Auto-Deploy
+publish_to: 'none'
 
 environment:
   sdk: ">=3.4.3 <4.0.0" 
@@ -18,6 +19,8 @@ dependencies:
   uuid: ^4.5.2
   async: ^2.13.0
   collection: ^1.19.1
+  git: ^2.3.2
+  meta: ^1.17.0
 
   # since docker2 had meta pinned to 1.17
   # and path_provider had meta pinned to 1.16

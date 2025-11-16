@@ -12,15 +12,21 @@ class UpdateFileContentCommand extends CommandBase {
     required this.filePath,
     required this.matchExpression,
     required this.valueReplacement,
+    required super.assignedToPipeline,
+    super.criticalCommand,
+    super.pre,
   });
 
   @override
   Map<String, dynamic> toJson() {
-    return {
+    return <String, dynamic>{
       'type': 'update_file_content',
       'filePath': filePath,
       'matchExpression': matchExpression,
       'valueReplacement': valueReplacement,
+      'assignedToPipeline': assignedToPipeline,
+      'criticalCommand': criticalCommand,
+      'pre': pre,
     };
   }
 
@@ -29,6 +35,9 @@ class UpdateFileContentCommand extends CommandBase {
       filePath: map['filePath'] as String,
       matchExpression: map['matchExpression'] as String,
       valueReplacement: map['valueReplacement'] as String,
+      assignedToPipeline: map['assignedToPipeline'] as String,
+      criticalCommand: map['criticalCommand'] as bool? ?? false,
+      pre: map['pre'] as bool? ?? true,
     );
   }
 
@@ -36,11 +45,17 @@ class UpdateFileContentCommand extends CommandBase {
     String? filePath,
     String? matchExpression,
     String? valueReplacement,
+    String? assignedToPipeline,
+    bool? criticalCommand,
+    bool? pre,
   }) {
     return UpdateFileContentCommand(
       filePath: filePath ?? this.filePath,
       matchExpression: matchExpression ?? this.matchExpression,
       valueReplacement: valueReplacement ?? this.valueReplacement,
+      assignedToPipeline: assignedToPipeline ?? this.assignedToPipeline,
+      criticalCommand: criticalCommand ?? this.criticalCommand,
+      pre: pre ?? this.pre,
     );
   }
 
@@ -51,10 +66,17 @@ class UpdateFileContentCommand extends CommandBase {
           runtimeType == other.runtimeType &&
           filePath == other.filePath &&
           matchExpression == other.matchExpression &&
+          assignedToPipeline == other.assignedToPipeline &&
+          pre == other.pre &&
+          criticalCommand == other.criticalCommand &&
           valueReplacement == other.valueReplacement;
 
   @override
   int get hashCode =>
-      filePath.hashCode ^ matchExpression.hashCode ^ valueReplacement.hashCode;
+      filePath.hashCode ^
+      matchExpression.hashCode ^
+      valueReplacement.hashCode ^
+      assignedToPipeline.hashCode ^
+      pre.hashCode ^
+      criticalCommand.hashCode;
 }
-

@@ -6,7 +6,24 @@ import 'rename_file_command.dart';
 import 'update_file_content_command.dart';
 
 abstract class CommandBase {
-  const CommandBase();
+  /// Whether this command end the event when something fails
+  ///
+  /// Something like updating a file, and, if it does not work
+  /// avoid next commands execution since that point is required
+  final bool criticalCommand;
+
+  /// The pipeline identifier relation 
+  final String assignedToPipeline;
+
+  /// Whether this command will be executed 
+  /// at pre-event or post-event
+  final bool pre;
+
+  CommandBase({
+    required this.assignedToPipeline,
+    this.criticalCommand = false,
+    this.pre = true,
+  });
 
   Map<String, dynamic> toJson();
 

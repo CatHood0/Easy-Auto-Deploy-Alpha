@@ -25,27 +25,5 @@ class GitInstallationChecker
     void Function()? onEnd,
   }) async {
     try {
-      final ProcessResult process = await Process.run('git', ['-v']);
-
-      final int exitCode = process.exitCode;
-
-      if (exitCode == 0) {
-        log?.call(
-          '✅ Git ya está instalado en el sistema'
-          'Repositorio clonado exitosamente',
-        );
-        onEnd?.call();
-        return (true, DeploymentStatus.ready);
-      }
-      log?.call(
-        '❌ Git no está instalado',
-      );
-      onFail?.call();
-      return (true, DeploymentStatus.requireExternalService);
-    } catch (e) {
-      log?.call('❌ No se pudo chequear si el sistema tiene git instalado');
-      onFail?.call();
-      return (false, DeploymentStatus.notWorking);
-    }
   }
 }

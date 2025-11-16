@@ -10,7 +10,7 @@ import '../git/git_clone_resolver.dart';
 import '../services.dart';
 
 class DockerService {
-  DockerService(this._logger);
+  DockerService();
   final LoggerService _logger;
 
   Stream<List<String>> get logs => _logger.logs;
@@ -88,7 +88,8 @@ class DockerService {
         log: (String value) {
           _logger.log(value);
         },
-      )).$1) {
+      ))
+          .$1) {
         isRunning.value = false;
         return false;
       }
@@ -246,35 +247,6 @@ class DockerService {
     } finally {
       isRunning.value = false;
       onFail(Directory(path));
-    }
-  }
-
-  // Detener los contenedores
-  Future<bool> stopDockerCompose({
-    required String imageName,
-  }) async {
-    try {
-      _logger.log('🛑 Deteniendo contenedores...');
-
-      final String path = await appDirectory(imageName);
-      final ProcessResult result = await Process.run(
-        'docker-compose',
-        ['down'],
-        workingDirectory: path,
-      );
-
-      if (result.exitCode == 0) {
-        _logger.log('✅ Contenedores detenidos');
-        return true;
-      } else {
-        _logger.log('❌ Error deteniendo contenedores: ${result.stderr}');
-        return false;
-      }
-    } catch (e) {
-      _logger.log('❌ Error deteniendo docker-compose: $e');
-      return false;
-    } finally {
-      isRunning.value = false;
     }
   }
 

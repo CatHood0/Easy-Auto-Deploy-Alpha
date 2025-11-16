@@ -1,20 +1,29 @@
 import 'dart:async';
+import 'dart:core';
+import '../../../extensions/date_format.dart';
+import '../../logger/logger_details.dart';
 
-import 'package:auto_deployment/src/domain/extensions/date_format_ext.dart';
-
+//TODO: we need to reimplement this part
 class LoggerService {
-  final StreamController<List<String>> logController =
-      StreamController<List<String>>.broadcast();
-  Stream<List<String>> get logs => logController.stream;
-  final List<String> _cachedLogs = <String>[];
-  static const int _logStackSize = 100;
+  final StreamController<List<LogMessageDetail>> logController =
+      StreamController<List<LogMessageDetail>>.broadcast();
 
+  final List<LogMessageDetail> _cachedLogs = <LogMessageDetail>[];
+
+  static const int _logStackSize = 400;
+
+  List<LogMessageDetail> get cache => _cachedLogs.toList(growable: false);
+  Stream<List<LogMessageDetail>> get logs => logController.stream;
+  LogMessageDetail? get last => _cachedLogs.lastOrNull;
+  LogMessageDetail? get first => _cachedLogs.firstOrNull;
   int get length => _cachedLogs.length;
 
-  String? get last => _cachedLogs.lastOrNull;
-  String? get first => _cachedLogs.firstOrNull;
+  void clear() {
+    logController.add(<LogMessageDetail>[]);
+    _cachedLogs.clear();
+  }
 
-  void setLog(List<String> messages) {
+  void setLog(List<LogMessageDetail> messages) {
     logController.add(messages);
   }
 
@@ -22,7 +31,7 @@ class LoggerService {
     _cachedLogs.replaceRange(
       start,
       end,
-      <String>[],
+      <LogMessageDetail>[],
     );
     logController.add(_cachedLogs);
   }
@@ -34,16 +43,24 @@ class LoggerService {
     }
   }
 
-  //TODO: implement log levels
-  void log(String message, [bool ignore = false]) {
+  void log(LogMessageDetail message, [bool ignore = false]) {
     if (ignore) return;
     clampIfRequired();
-    final String resultM = '[${DateTime.now().formatHhMmSs()}]: '
-        '$message';
-    logController.add([
+    final LogMessageDetail resultM = message.copyWithNewMessage(
+        '[${DateTime.now().formatHhMmSs()}] - [${message.level.name.toUpperCase()}]: '
+        '$message');
+
+    // every log with an id that is already cached, will be removed
+    // to the incomming message
+    if (_cachedLogs.isNotEmpty && _cachedLogs.last.id == resultM.id) {
+      _cachedLogs.removeLast();
+    }
+
+    logController.add(<LogMessageDetail>[
       ..._cachedLogs,
       resultM,
     ]);
+
     _cachedLogs.add(resultM);
   }
 

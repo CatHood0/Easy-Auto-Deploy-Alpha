@@ -2,24 +2,24 @@ import 'dart:convert';
 import 'package:collection/collection.dart';
 import '../../commands/command_base.dart';
 
-class RepositoryArguments {
+class ProjectConfiguration {
   final int id;
   final int repoId;
   final String identifier;
-  final List<EnvironmentVar> environmentVars;
-  final List<CommandBase> steps;
   final bool requestForSudo;
+  final List<EnvironmentVar> environmentVars;
+  final List<CommandBase> commands;
 
-  RepositoryArguments({
+  ProjectConfiguration({
     required this.id,
     required this.repoId,
     required this.identifier,
-    required this.steps,
+    required this.commands,
     required this.environmentVars,
     this.requestForSudo = true,
   });
 
-  RepositoryArguments copyWith({
+  ProjectConfiguration copyWith({
     int? id,
     int? repoId,
     String? identifier,
@@ -27,11 +27,11 @@ class RepositoryArguments {
     List<CommandBase>? steps,
     bool? requestForSudo,
   }) {
-    return RepositoryArguments(
+    return ProjectConfiguration(
       id: id ?? this.id,
       repoId: repoId ?? this.repoId,
       identifier: identifier ?? this.identifier,
-      steps: steps ?? this.steps,
+      commands: steps ?? this.commands,
       environmentVars: environmentVars ?? this.environmentVars,
       requestForSudo: requestForSudo ?? this.requestForSudo,
     );
@@ -42,7 +42,7 @@ class RepositoryArguments {
       'repo_id': repoId,
       'identifier': identifier,
       'commands': json.encode(
-        steps
+        commands
             .map(
               (CommandBase x) => x.toJson(),
             )
@@ -52,13 +52,13 @@ class RepositoryArguments {
     };
   }
 
-  factory RepositoryArguments.fromMap(Map<String, dynamic> map) {
-    return RepositoryArguments(
+  factory ProjectConfiguration.fromMap(Map<String, dynamic> map) {
+    return ProjectConfiguration(
       id: map['id']?.toInt() ?? -1,
       repoId: map['repo_id'] ?? -1,
       identifier: map['identifier'] ?? '',
       environmentVars: [],
-      steps: List<CommandBase>.from(
+      commands: List<CommandBase>.from(
         (json.decode(map['commands'] as String) as List<dynamic>).map(
           (dynamic x) => CommandBase.fromJson(
             x,
@@ -71,15 +71,15 @@ class RepositoryArguments {
 
   String toJson() => json.encode(toMap());
 
-  factory RepositoryArguments.fromJson(String source) =>
-      RepositoryArguments.fromMap(json.decode(source));
+  factory ProjectConfiguration.fromJson(String source) =>
+      ProjectConfiguration.fromMap(json.decode(source));
   @override
   String toString() {
     return 'Arguments('
         'id: $id, '
         'repoId: $repoId, '
         'environmentVars: $environmentVars, '
-        'commands: $steps, '
+        'commands: $commands, '
         'request_sudo: request_sudo, '
         ')';
   }
@@ -87,11 +87,11 @@ class RepositoryArguments {
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    return other is RepositoryArguments &&
+    return other is ProjectConfiguration &&
         other.id == id &&
         other.repoId == repoId &&
         other.identifier == identifier &&
-        _deepCollectionEquality.equals(other.steps, steps) &&
+        _deepCollectionEquality.equals(other.commands, commands) &&
         _deepCollectionEquality.equals(
             other.environmentVars, environmentVars) &&
         other.requestForSudo == requestForSudo;
@@ -101,7 +101,7 @@ class RepositoryArguments {
   int get hashCode {
     return id.hashCode ^
         identifier.hashCode ^
-        steps.hashCode ^
+        commands.hashCode ^
         environmentVars.hashCode ^
         requestForSudo.hashCode;
   }
