@@ -7,7 +7,7 @@
 import 'package:dcli/dcli.dart';
 
 import '../../docker2.dart';
-import 'volumes_compose.dart';
+import 'compose_volumes.dart';
 import 'exceptions.dart';
 
 /// Top level class generally used as the starting point manage
@@ -135,7 +135,9 @@ class DockerCompose {
       );
 
   /// Returns the list of volumes
-  List<Volume> volumes() => ComposeVolumes().volumes();
+  List<Volume> volumes(String workspace) => ComposeVolumes().volumes(
+        workspace,
+      );
 
   /// internal function to provide a consistent method of handling
   /// failed execution of the docker command.

@@ -10,13 +10,13 @@ class ComposeVolumes extends Volumes {
 
   /// returns a list of containers.
   @override
-  List<Volume> volumes() {
+  List<Volume> volumes(String workspaceDirectory) {
     final List<Volume> volumeCache = <Volume>[];
 
     const String args =
         '''--format "table {{.Name}}|{{.Driver}}|{{.Mountpoint}}|{{.Labels}}|{{.Scope}}"''';
 
-    final List<String> lines = dockerRun('volumes', args)
+    final List<String> lines = dockerComposeRun('volumes', args, workspaceDirectory: workspaceDirectory,)
         // remove the heading.
         .toList()
       ..removeAt(0);
